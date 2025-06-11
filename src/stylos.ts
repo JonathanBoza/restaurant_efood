@@ -19,7 +19,6 @@ export const EstiloGlobal = createGlobalStyle`
   }
 
   body {
-
     background-color: ${colors.lightBeige};
   }
 

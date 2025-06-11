@@ -1,5 +1,3 @@
-import bannerImg from '../../assets/image/bannerPrato.png'
-
 import * as S from './styles'
 
 export type Props = {
@@ -9,7 +7,7 @@ export type Props = {
 const Banner = ({ restaurante }: Props) => {
   return (
     <div>
-      <S.Image style={{ backgroundImage: `url(${bannerImg})` }} />
+      <S.Image style={{ backgroundImage: `url(${restaurante.capa})` }} />
       <S.ContainerBanner className="container">
         <S.TagBanner>{restaurante.tipo}</S.TagBanner>
         <S.TitleBanner>{restaurante.titulo}</S.TitleBanner>
