@@ -1,4 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { toast, ToastOptions } from 'react-toastify'
+
+// Configuração padrão para os toasts
+const toastConfig: ToastOptions = {
+  position: 'top-right',
+  autoClose: 3000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true
+}
 
 type CartState = {
   items: Prato[]
@@ -26,12 +37,17 @@ const cartSlice = createSlice({
       const prato = state.items.find((item) => item.id === action.payload.id)
       if (!prato) {
         state.items.push(action.payload)
+        toast.success(
+          'O item foi adicionado ao carrinho com sucesso!',
+          toastConfig
+        )
       } else {
-        alert('O item já foi adicionado ao carrinho!')
+        toast.warning('O item já foi adicionado ao carrinho!', toastConfig)
       }
     },
     remover: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter((item) => item.id !== action.payload)
+      toast.info('Item removido do carrinho', toastConfig)
     },
     open: (state) => {
       return {
@@ -70,9 +86,11 @@ const cartSlice = createSlice({
     finish: (state) => {
       state.openPurchase = false
       state.openFinalizar = true
+      toast.success('Pedido realizado com sucesso!', toastConfig)
     },
     clear: (state) => {
       state.items = []
+      toast.info('Carrinho foi esvaziado', toastConfig)
     }
   }
 })

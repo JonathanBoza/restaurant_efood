@@ -5,6 +5,8 @@ import Footer from './components/Footer'
 import { Provider } from 'react-redux'
 import { store } from './store'
 import Cart from './components/Cart'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 function App() {
   return (
     <Provider store={store}>
@@ -13,6 +15,7 @@ function App() {
         <Rotas />
         <Footer />
         <Cart />
+        <ToastContainer />
       </BrowserRouter>
     </Provider>
   )
