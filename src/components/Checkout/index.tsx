@@ -54,7 +54,7 @@ const Checkout = () => {
       // Cria uma mensagem clara sobre os campos obrigatórios
       const errorMessages = [
         'Por favor, preencha os seguintes campos obrigatórios:',
-        ...emptyFields.map((field) => `- ${field}`),
+        ...emptyFields.map((field) => `- ${field}`)
       ]
 
       setValidationErrors(errorMessages)
@@ -161,7 +161,7 @@ const Checkout = () => {
 
     return hasError
   }
-  
+
   const getFieldLabel = (fieldName: string): string => {
     const fieldLabels: Record<string, string> = {
       destinatario: 'Destinatário',
@@ -194,10 +194,10 @@ const Checkout = () => {
           .filter(
             ([field, value]) =>
               (field === 'nameCard' ||
-              field === 'numberCard' ||
-              field === 'cardCode' ||
-              field === 'expiresMonth' ||
-              field === 'expiresYear') &&
+                field === 'numberCard' ||
+                field === 'cardCode' ||
+                field === 'expiresMonth' ||
+                field === 'expiresYear') &&
               // Verifica se o campo está vazio
               (!value || value.trim() === '')
           )
@@ -207,9 +207,9 @@ const Checkout = () => {
           // Cria uma mensagem clara sobre os campos obrigatórios
           const errorMessages = [
             'Por favor, preencha os seguintes campos do cartão:',
-            ...emptyPaymentFields.map(field => `- ${field}`)
+            ...emptyPaymentFields.map((field) => `- ${field}`)
           ]
-          
+
           setValidationErrors(errorMessages)
           setToastVisible(true)
           return
