@@ -60,15 +60,16 @@ const MessageItem = styled.li`
   font-size: 14px;
   line-height: 1.4;
   position: relative;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
-  
+
   /* Estilo para os marcadores de lista personalizados */
   &::before {
     content: '';
-    display: ${props => props.children?.toString().startsWith('-') ? 'inline-block' : 'none'};
+    display: ${(props) =>
+      props.children?.toString().startsWith('-') ? 'inline-block' : 'none'};
     width: 6px;
     height: 6px;
     border-radius: 50%;
