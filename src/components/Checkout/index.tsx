@@ -54,9 +54,9 @@ const Checkout = () => {
       // Cria uma mensagem clara sobre os campos obrigatórios
       const errorMessages = [
         'Por favor, preencha os seguintes campos obrigatórios:',
-        ...emptyFields.map(field => `- ${field}`)
+        ...emptyFields.map((field) => `- ${field}`),
       ]
-      
+
       setValidationErrors(errorMessages)
       setToastVisible(true)
       return
