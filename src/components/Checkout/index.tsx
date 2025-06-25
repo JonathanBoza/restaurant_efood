@@ -43,7 +43,7 @@ const Checkout = () => {
     })
 
     // Trigger validation manually
-    const errors = await form.validateForm()
+    await form.validateForm()
 
     // Get delivery field errors with their specific messages
     const deliveryFieldErrors = Object.entries(form.errors)
