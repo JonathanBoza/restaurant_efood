@@ -62,7 +62,8 @@ const cartSlice = createSlice({
       state.openFinalizar = false
     },
     closeCartSidebar: (state) => {
-      ;(state.openDelivery = true), (state.openSidebar = false)
+      state.openDelivery = true;
+      state.openSidebar = false;
     },
     closeDeliverySidebar: (state) => {
       state.openSidebar = true
