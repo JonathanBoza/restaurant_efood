@@ -32,36 +32,37 @@ const Checkout = () => {
   const dispatch = useDispatch()
   const totalPrices = getPriceTotal(items)
 
-  const buttonCLick = () => {
-    // Verifica quais campos obrigatórios não foram preenchidos
-    const emptyFields = Object.entries(form.values)
-      .filter(
-        ([field, value]) =>
-          // Filtra apenas os campos da etapa de entrega
-          field !== 'nameCard' &&
-          field !== 'numberCard' &&
-          field !== 'cardCode' &&
-          field !== 'expiresMonth' &&
-          field !== 'expiresYear' &&
-          // Ignora o campo complemento que é opcional
-          field !== 'complemento' &&
-          // Verifica se o campo está vazio
-          (!value || value.trim() === '')
+  const buttonCLick = async () => {
+    // Mark all delivery fields as touched to trigger validation
+    form.setTouched({
+      destinatario: true,
+      endereco: true,
+      cidade: true,
+      cep: true,
+      numero: true
+    })
+
+    // Trigger validation manually
+    const errors = await form.validateForm()
+
+    // Get delivery field errors with their specific messages
+    const deliveryFieldErrors = Object.entries(form.errors)
+      .filter(([field]) =>
+        ['destinatario', 'endereco', 'cidade', 'cep', 'numero'].includes(field)
       )
-      .map(([field]) => getFieldLabel(field))
+      .map(([field, error]) => `- ${getFieldLabel(field)}: ${error}`)
 
-    if (emptyFields.length > 0) {
-      // Cria uma mensagem clara sobre os campos obrigatórios
+    if (deliveryFieldErrors.length > 0) {
       const errorMessages = [
-        'Por favor, preencha os seguintes campos obrigatórios:',
-        ...emptyFields.map((field) => `- ${field}`)
+        'Por favor, corrija os seguintes erros:',
+        ...deliveryFieldErrors
       ]
-
       setValidationErrors(errorMessages)
       setToastVisible(true)
       return
     }
 
+    // If all validations pass
     setToPayment(true)
     dispatch(openPurchaseFunction())
   }
@@ -104,22 +105,62 @@ const Checkout = () => {
       destinatario: Yup.string().required('O campo é obrigatorio'),
       endereco: Yup.string().required('O campo é obrigatorio'),
       cidade: Yup.string().required('O campo é obrigatorio'),
-      cep: Yup.string().required('O campo é obrigatorio'),
-      numero: Yup.string().required('O campo é obrigatorio'),
+      cep: Yup.string()
+        .required('O campo é obrigatorio')
+        .matches(/^\d{5}-\d{3}$/, 'CEP inválido - Use o formato: 00000-000'),
+      numero: Yup.string()
+        .required('O campo é obrigatorio')
+        .min(1, 'Número inválido')
+        .max(4, 'Número muito longo'),
       nameCard: Yup.string().when((values, schema) =>
         toPayment ? schema.required('O campo é obrigatorio') : schema
       ),
       numberCard: Yup.string().when((values, schema) =>
-        toPayment ? schema.required('O campo é obrigatorio') : schema
+        toPayment
+          ? schema
+            .required('O campo é obrigatorio')
+            .matches(
+              /^\d{4}\s\d{4}\s\d{4}\s\d{4}$/,
+              'Número do cartão inválido - Digite 16 dígitos'
+            )
+          : schema
       ),
       cardCode: Yup.string().when((values, schema) =>
-        toPayment ? schema.required('O campo é obrigatorio') : schema
+        toPayment
+          ? schema
+            .required('O campo é obrigatorio')
+            .matches(/^\d{3}$/, 'CVV inválido - Digite 3 dígitos')
+          : schema
       ),
       expiresMonth: Yup.string().when((values, schema) =>
-        toPayment ? schema.required('O campo é obrigatorio') : schema
+        toPayment
+          ? schema
+            .required('O campo é obrigatorio')
+            .matches(
+              /^(0[1-9]|1[0-2])$/,
+              'Mês inválido - Use valores entre 01 e 12'
+            )
+          : schema
       ),
       expiresYear: Yup.string().when((values, schema) =>
-        toPayment ? schema.required('O campo é obrigatorio') : schema
+        toPayment
+          ? schema
+            .required('O campo é obrigatorio')
+            .matches(/^\d{2}$/, 'Ano inválido - Use 2 dígitos')
+            .test('expiration', 'Cartão vencido', function (value) {
+              if (!value) return true
+              const currentYear = new Date().getFullYear() % 100
+              const month = this.parent.expiresMonth
+              const year = parseInt(value)
+
+              if (year < currentYear) return false
+              if (year === currentYear && month) {
+                const currentMonth = new Date().getMonth() + 1
+                return parseInt(month) >= currentMonth
+              }
+              return true
+            })
+          : schema
       )
     }),
     onSubmit: (values) => {
@@ -186,30 +227,38 @@ const Checkout = () => {
     }
   }, [dispatch, isSuccess])
   // Handle form submission
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (!isLoading) {
       if (toPayment) {
-        // Verifica quais campos obrigatórios do pagamento não foram preenchidos
-        const emptyPaymentFields = Object.entries(form.values)
-          .filter(
-            ([field, value]) =>
-              (field === 'nameCard' ||
-                field === 'numberCard' ||
-                field === 'cardCode' ||
-                field === 'expiresMonth' ||
-                field === 'expiresYear') &&
-              // Verifica se o campo está vazio
-              (!value || value.trim() === '')
+        // Mark all payment fields as touched to trigger validation
+        form.setTouched(
+          {
+            nameCard: true,
+            numberCard: true,
+            cardCode: true,
+            expiresMonth: true,
+            expiresYear: true
+          },
+          true
+        )
+
+        const paymentFieldErrors = Object.entries(form.errors)
+          .filter(([field]) =>
+            [
+              'nameCard',
+              'numberCard',
+              'cardCode',
+              'expiresMonth',
+              'expiresYear'
+            ].includes(field)
           )
-          .map(([field]) => getFieldLabel(field))
+          .map(([field, error]) => `- ${getFieldLabel(field)}: ${error}`)
 
-        if (emptyPaymentFields.length > 0) {
-          // Cria uma mensagem clara sobre os campos obrigatórios
+        if (paymentFieldErrors.length > 0) {
           const errorMessages = [
-            'Por favor, preencha os seguintes campos do cartão:',
-            ...emptyPaymentFields.map((field) => `- ${field}`)
+            'Por favor, corrija os seguintes erros no cartão:',
+            ...paymentFieldErrors
           ]
-
           setValidationErrors(errorMessages)
           setToastVisible(true)
           return
