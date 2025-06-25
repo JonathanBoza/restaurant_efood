@@ -1,0 +1,9 @@
+*.tsx
+*.ts
+*.js
+*.jsx
+*.json
+*.md
+*.css
+build/
+public/
